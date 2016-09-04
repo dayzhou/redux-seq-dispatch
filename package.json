@@ -1,0 +1,36 @@
+{
+  "name": "redux-seq-dispatch",
+  "version": "0.0.1",
+  "description": "Redux middle for dispatching sequential promise- or array-valued actions",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dayzhou/redux-seq-dispatch.git"
+  },
+  "keywords": [
+    "redux",
+    "promise",
+    "middleware",
+    "action",
+    "sequential"
+  ],
+  "author": "Da Zhou <da.zh.zhou@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dayzhou/redux-seq-dispatch/issues"
+  },
+  "homepage": "https://github.com/dayzhou/redux-seq-dispatch",
+  "devDependencies": {
+    "babel-cli": "^6.14.0",
+    "babel-core": "^6.14.0",
+    "babel-eslint": "^6.1.2",
+    "babel-preset-es2015": "^6.14.0",
+    "eslint": "^3.4.0",
+    "eslint-config-airbnb-base": "^5.0.3",
+    "eslint-plugin-import": "^1.14.0",
+    "mocha": "^3.0.2"
+  }
+}
