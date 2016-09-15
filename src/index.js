@@ -5,25 +5,27 @@
 |*| !!! I AM STRONGLY AGAINST SUCH USAGE !!!
 |*| !!! I AM STRONGLY AGAINST SUCH USAGE !!!
 |*| !!! I AM STRONGLY AGAINST SUCH USAGE !!!
-|*| *********** RECOMMENDED STYLE FOR promise-valued actions ***********
-|*| !!! SIMPLY resolve normal actions !!!
+|*| ********* RECOMMENDED STYLE FOR promise-valued actions IS **********
+|*| !!! SIMPLY `resolve(normal || function-valued actions)` !!!
 \*/
 
 export default function ({dispatch, getState}) {
   return (next) => {
     function _dispatch(action) {
-      if (typeof action === 'object' && typeof action.promise === 'function') {
+      if (typeof action === 'function') {
+        action(dispatch, getState);
+        return;
+      } else if (typeof action === 'object' && typeof action.promise === 'function') {
         // Assume `action.promise` is a function that returns a promise
-        _dispatch(action.promise());
+        return _dispatch(action.promise());
       } else if (typeof action === 'object' && typeof action.then === 'function') {
-        // `action` is a thenable:
+        // The case that `action` is a thenable:
         //
-        // `action` can resolve a thenable. However, `action` shouldn't
-        // reject a thenable, becase it gets rejected immediately when
-        // the `reject` function is called regardless of whether this
-        // thenable is settled.
+        // `action` can also resolve a thenable. However,
+        // `action` shouldn't reject a thenable, becase `action` won't
+        // wait for this thenable being settled before it is rejected.
         //
-        // If `action` resolves a thenable, `action` is then resolved
+        // if `action` resolves a thenable, `action` is then resolved
         // or rejected only after the thenable is resolved or rejected.
         // Notice that this thenable shouldn't reject a thenable
         // due to the reason stated above.
@@ -45,7 +47,7 @@ export default function ({dispatch, getState}) {
               typeof failureAction === 'object' &&
               typeof failureAction.then === 'function'
             ) {
-              console.error(
+              console.warn(
                 'The rejected action should not be thenable. ' +
                 'This action was not dispatched...'
               );
@@ -55,17 +57,19 @@ export default function ({dispatch, getState}) {
           }
         );
       } else {
-        // `action` neither is nor generates a promise
-        return Promise.resolve(next(action));
+        // `action` isn't a promise
+        next(action);
+        return;
       }
     }
 
     return (actions) => {
-      // An array of actions is dispatched
+      // Multi-actions are dispatched
       if (actions instanceof Array) {
-        return actions.reduce((progress, action) => {
-          return progress.then(() => _dispatch(action));
-        }, Promise.resolve());
+        return actions.reduce((prev, action) =>
+          prev ? prev.then(() => _dispatch(action)) : _dispatch(action),
+          null
+        );
       }
 
       // Only one action is dispatched
